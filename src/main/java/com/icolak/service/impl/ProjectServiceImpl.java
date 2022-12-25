@@ -12,6 +12,7 @@ import com.icolak.service.ProjectService;
 import com.icolak.service.TaskService;
 import com.icolak.service.UserService;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -96,7 +97,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectDTO> listAllProjectDetails() {
-        UserDTO currentUserDTO = userService.findByUserName("harold@manager.com"); // login manager
+
+        //We want to capture who is log in
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+//        UserDTO currentUserDTO = userService.findByUserName("harold@manager.com"); // login manager
+        UserDTO currentUserDTO = userService.findByUserName(username); // login manager
+
         User user = mapperUtil.convert(currentUserDTO, new User());
         // We bring all the projects belong to log in manager
         List<Project> projectList = projectRepository.findAllByAssignedManager(user);

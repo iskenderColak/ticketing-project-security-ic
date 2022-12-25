@@ -11,6 +11,7 @@ import com.icolak.service.TaskService;
 import com.icolak.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,12 +24,14 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final ProjectService projectService;
     private final TaskService taskService;
+    private final PasswordEncoder encoder;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, @Lazy ProjectService projectService, @Lazy TaskService taskService) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, @Lazy ProjectService projectService, @Lazy TaskService taskService, PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.projectService = projectService;
         this.taskService = taskService;
+        this.encoder = encoder;
     }
 /*
     // This below method lists only the users whose isDeleted field is false
@@ -60,8 +63,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void save(UserDTO user) {
-        userRepository.save(userMapper.convertToEntity(user));
+    public void save(UserDTO dto) {
+
+        dto.setEnabled(true);
+        User user = userMapper.convertToEntity(dto);
+        user.setPassWord(encoder.encode(user.getPassWord()));
+
+        userRepository.save(user);
     }
 
     @Override

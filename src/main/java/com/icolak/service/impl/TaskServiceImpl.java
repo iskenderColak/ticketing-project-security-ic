@@ -12,6 +12,7 @@ import com.icolak.mapper.TaskMapper;
 import com.icolak.repository.TaskRepository;
 import com.icolak.service.TaskService;
 import com.icolak.service.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -111,7 +112,13 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> listAllTasksByStatusIsNot(Status status) {
-        UserDTO loggedInUser = userService.findByUserName("john@employee.com");
+
+        //We want to capture who is log in
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+//        UserDTO loggedInUser = userService.findByUserName("john@employee.com");
+        UserDTO loggedInUser = userService.findByUserName(username);
+
         List<Task> tasks = taskRepository.findAllByTaskStatusIsNotAndAssignedEmployee(status, mapperUtil.convert(loggedInUser, new User()));
         return tasks.stream()
                 .map(task -> mapperUtil.convert(task, new TaskDTO()))
@@ -120,7 +127,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> listAllTasksByStatus(Status status) {
-        UserDTO loggedInUser = userService.findByUserName("john@employee.com");
+
+        //We want to capture who is log in
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+//        UserDTO loggedInUser = userService.findByUserName("john@employee.com");
+        UserDTO loggedInUser = userService.findByUserName(username);
         List<Task> tasks = taskRepository.findAllByTaskStatusAndAssignedEmployee(status, mapperUtil.convert(loggedInUser, new User()));
         return tasks.stream()
                 .map(task -> mapperUtil.convert(task, new TaskDTO()))
